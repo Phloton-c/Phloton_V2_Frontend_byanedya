@@ -58,9 +58,9 @@ def graph_section():
             }
         df = pd.DataFrame(data)
 
-        multislect_cols = st.columns([0.7,1], gap="small")
-        with multislect_cols[0]:
-            show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=["Phloton Unit Battery SoC","Battery Voltage","Flask Temperature"],label_visibility="hidden")
+        # multislect_cols = st.columns([0.7,1], gap="small")
+        # with multislect_cols[0]:
+        #     show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=["Phloton Unit Battery SoC","Battery Voltage","Flask Temperature"],label_visibility="hidden")
         
         
         r1_graph_cols = st.columns([1,1,1], gap="small")
@@ -70,3 +70,7 @@ def graph_section():
             draw_chart(chart_title="Battery Voltage",chart_data=df,y_axis_title="Voltage(V)")
         with r1_graph_cols[2]:
             draw_chart(chart_title="Flask Temperature",chart_data=df,y_axis_title="Celsius(°C)")
+
+        r2_graph_cols = st.columns([1,1,1], gap="small") 
+        with r2_graph_cols[0]:
+            draw_chart(chart_title="Ambient Temperature",chart_data=df,y_axis_title="Celsius(°C)")

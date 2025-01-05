@@ -35,6 +35,7 @@ def main():
     # ------------------- Project Configuration -----------------------
     initialize_session_state() # Initialize Session State
     firebase_db_setup()  # Firebase client Setup
+
     # Manage Anedya Connection Credentials
     API_KEY=st.secrets["API_KEY"]
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -75,25 +76,23 @@ def drawLogin():
             
 
 def check_credentials(username,password):
-    phloton_u = firestore_client.collection("users").get(username)
-    st.write(phloton_u)
-    st.stop()
-    if (
-        username in phloton_users["admins"]
-        and phloton_users["admins"][username]["password"] == password
-    ):
+    user_details = firestore_client.collection("users").document(username).get().to_dict()
+    if user_details is None:
+        st.error("Invalid Credential!")
+        st.stop()
+    if password != user_details["password"]:
+        st.error("Incorrect Password!")
+        st.stop()
+
+    if user_details["role"] == "admin":
         st.session_state.view_role = "admin"
         st.session_state.LoggedIn = True
         st.rerun()
-    elif (
-        username in phloton_users["user"]
-        and phloton_users["user"][username]["password"] == password
-    ):
+    elif user_details["role"] == "user":
         st.session_state.view_role = "user"
+        st.session_state.user_permissions = user_details["permissions"]
         st.session_state.LoggedIn = True
         st.rerun()
-    else:
-        st.error("Invalid Credential!")
 
 if __name__ == "__main__":
     main()
