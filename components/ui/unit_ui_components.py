@@ -57,9 +57,9 @@ def gauge_section(data:list=None):
         r1_guage_cols = st.columns([1,1,1,1], gap="small")
 
         with r1_guage_cols[0]:
-            sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
+            sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")   # jsut interchnages the 0 and 1 gauge
         with r1_guage_cols[1]:
-            sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")
+            sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
         with r1_guage_cols[2]:
             sv.gauge(data[2],"Flask Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
         with r1_guage_cols[3]:
@@ -75,9 +75,9 @@ def graph_section(node_client=None):
 
         options:list=None
         if st.session_state.view_role == "user":
-            options=["Unit Battery SoC","Battery Voltage","Flask Temperature","Ambient Temperature"]
+            options=["Battery Voltage","Unit Battery SoC","Flask Temperature","Ambient Temperature"]
         else:
-            options=["Unit Battery SoC","Battery Voltage","Flask Temperature", "Ambient Temperature"]
+            options=["Battery Voltage","Unit Battery SoC","Flask Temperature", "Ambient Temperature"]
 
         VARIABLES=st.session_state.variablesIdentifier
         # st.write(VARIABLES)
