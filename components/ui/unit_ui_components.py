@@ -65,36 +65,56 @@ def gauge_section(data:list=None):
         with r1_guage_cols[3]:
             sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
 
-def graph_section(node_client):
+def graph_section(node_client=None):
+    if node_client is None:
+        st.stop()
     container = st.container(border=True)
     with container:
-        data = {
-                "Time": pd.date_range(start="2023-08-01", periods=24, freq="h"),
-                "Temperature": np.random.normal(
-                    loc=25, scale=5, size=24
-                ),  # Example temperature data
-            }
-        df = pd.DataFrame(data)
         currentTime = int(time.time())    #to means recent time
         pastHour_Time = int(currentTime - 86400)
 
-        # multislect_cols = st.columns([0.7,1], gap="small")
-        # with multislect_cols[0]:
-        #     show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=["Phloton Unit Battery SoC","Battery Voltage","Flask Temperature"],label_visibility="hidden")
-        
-        
-        r1_graph_cols = st.columns([1,1], gap="small")
-        with r1_graph_cols[0]:
-            unit_battery_soc_data=node_client.get_data("temperature", pastHour_Time, currentTime)
-            # st.write(unit_battery_soc_data)
-            draw_chart(chart_title="Phloton Unit Battery SoC",chart_data=unit_battery_soc_data,y_axis_title="Temperature")
-        with r1_graph_cols[1]:
-            # draw_chart(chart_title="Battery Voltage",chart_data=df,y_axis_title="Voltage(V)")
-            pass
-        # with r1_graph_cols[2]:
-        #     draw_chart(chart_title="Flask Temperature",chart_data=df,y_axis_title="Celsius(°C)")
+        options:list=None
+        if st.session_state.view_role == "user":
+            options=["Unit Battery SoC","Battery Voltage","Flask Temperature","Ambient Temperature"]
+        else:
+            options=["Unit Battery SoC","Battery Voltage","Flask Temperature", "Ambient Temperature"]
 
-        r2_graph_cols = st.columns([1,1,1], gap="small") 
-        with r2_graph_cols[0]:
-            # draw_chart(chart_title="Ambient Temperature",chart_data=df,y_axis_title="Celsius(°C)")
-            pass
+        VARIABLES=st.session_state.variablesIdentifier
+        # st.write(VARIABLES)
+
+        multislect_cols = st.columns([0.7,1], gap="small")
+        with multislect_cols[0]:
+            show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=options,label_visibility="hidden")
+        if (show_charts is None) or (len(show_charts)==0):
+            st.stop()
+
+        if len(show_charts)>0:
+            r1_graph_cols = st.columns([1,1,1], gap="small")
+            with r1_graph_cols[0]:
+                identifier = get_identifier_by_name(VARIABLES, show_charts[0])
+                unit_battery_soc_data=node_client.get_data(identifier, pastHour_Time, currentTime)
+                draw_chart(chart_title=show_charts[0],chart_data=unit_battery_soc_data,y_axis_title="Temperature")
+            with r1_graph_cols[1]:
+                if len(show_charts)>1:
+                    identifier = get_identifier_by_name(VARIABLES, show_charts[1])
+                    data=node_client.get_data(identifier, pastHour_Time, currentTime)
+                    draw_chart(chart_title=show_charts[1],chart_data=data,y_axis_title="Voltage(V)")
+            with r1_graph_cols[2]:
+                if len(show_charts)>2:
+                    identifier = get_identifier_by_name(VARIABLES, show_charts[2])
+                    data=node_client.get_data(identifier, pastHour_Time, currentTime)
+                    draw_chart(chart_title=show_charts[2],chart_data=data,y_axis_title="Celsius(°C)")
+
+        if len(show_charts)>3:
+            r2_graph_cols = st.columns([1,1,1], gap="small") 
+            with r2_graph_cols[0]:
+                identifier = get_identifier_by_name(VARIABLES, show_charts[3])
+                data=node_client.get_data(identifier, pastHour_Time, currentTime)
+                draw_chart(chart_title=show_charts[3],chart_data=data,y_axis_title="Celsius(°C)")
+
+
+def get_identifier_by_name(data, search_name):
+    for variable in data.values():
+        if variable["name"] == search_name:
+            return variable["identifier"]
+    return None  # Return None if not found

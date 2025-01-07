@@ -1,10 +1,8 @@
 import json
 import requests
-import time
-import uuid
 import streamlit as st
 import pandas as pd
-import pytz  # Add this import for time zone conversion
+import pytz 
 
 class Anedya:
     def __init__(self) -> None:
@@ -35,16 +33,16 @@ class NewNode:
 
     def get_deviceStatus(self) -> dict:
         return anedya_getDeviceStatus(self.API_KEY, self.nodeId, self.http_session)
-
+    
     def get_latestData(self, variable_identifier: str) -> dict:
-        return get_latestData(variable_identifier, self.nodeId, self.API_KEY, self.http_session)
+        return get_latestData(variable_identifier, self.nodeId, self.API_KEY)
     
     def get_data(self, variable_identifier: str, from_time: int, to_time: int) -> pd.DataFrame:
-        return get_data(variable_identifier, self.nodeId, from_time, to_time, self.API_KEY, self.http_session)
+        return get_data(variable_identifier, self.nodeId, from_time, to_time, self.API_KEY)
     
 
-# @st.cache_data(ttl=9, show_spinner=False)
-def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str, http_session) -> dict:
+@st.cache_data(ttl=5, show_spinner=False)
+def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str) -> dict:
 
     url = "https://api.anedya.io/v1/data/latest"
     apiKey_in_formate = "Bearer " + apiKey
@@ -56,8 +54,8 @@ def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str, htt
         "Authorization": apiKey_in_formate,
     }
 
-    # response = requests.request("POST", url, headers=headers, data=payload)
-    response=http_session.request("POST", url, headers=headers, data=payload)
+    response = requests.request("POST", url, headers=headers, data=payload,timeout=10)
+    # response=request("POST", url, headers=headers, data=payload)
     response_message = response.text
     if response.status_code==200:
         # print(response_message)
@@ -76,14 +74,14 @@ def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str, htt
         return {"isSuccess": False, "data": None, "timestamp": None}
 
 
-# @st.cache_data(ttl=60, show_spinner=False)
+@st.cache_data(ttl=30, show_spinner=False)
 def get_data( 
     variable_identifier: str,
     nodeId: str,
     from_time: int,
     to_time: int,
     apiKey: str,
-    http_session,
+
 ) -> pd.DataFrame:
 
     url = "https://api.anedya.io/v1/data/getData"
@@ -103,7 +101,7 @@ def get_data(
         "Authorization": apiKey_in_formate,
     }
 
-    response=http_session.request("POST", url, headers=headers, data=payload)
+    response=requests.request("POST", url, headers=headers, data=payload,timeout=10)
     response_message = response.text
     # st.write(response_message)
 

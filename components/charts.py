@@ -6,20 +6,18 @@ import altair as alt
 # ====================== Altair charts ======================
         
 def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = None, x_axis_title: str = "Datetime"):
+    if chart_title:
+        st.subheader(chart_title)
     if chart_data is None:
         st.error("No data found")
         return
     elif chart_data.empty:
-        st.error("Data is empty")
+        st.error("No data found")
         return
 
-    print(chart_data)
-    
-    if chart_title:
-        st.subheader(chart_title)
-
+        
     temperature_chart_an = (
-            alt.Chart(data=chart_data, width=1000, height=400)
+            alt.Chart(data=chart_data)
             .mark_area( # type: ignore
                 line={"color": "#1fa2ff"},
                 color=alt.Gradient(
@@ -48,11 +46,11 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
                     ),
                 ),  # T indicates temporal (time-based) data
                 y=alt.Y(
-                    "aggregate:Q",
+                    "value:Q",
                     # scale=alt.Scale(domain=[0, 100]),
                     scale=alt.Scale(zero=False, domain=[10, 50]),
                     axis=alt.Axis(
-                        title="Temperature (°C)", grid=True, tickCount=10
+                        title="Temperature (°C)", grid=True, tickCount=30
                     ),
                 ),  # Q indicates quantitative data
                 tooltip=[
@@ -61,10 +59,10 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
                         format="%Y-%m-%d %H:%M:%S",
                         title="Time",
                     ),
-                    alt.Tooltip("aggregate:Q", format="0.2f", title="Value"),
+                    alt.Tooltip("value:Q", format="0.2f", title="Value"),
                 ],
             )
-            .properties(height=400)
+            .properties(height=350)
             .interactive()
         )  # type: ignore
 

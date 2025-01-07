@@ -1,9 +1,6 @@
 """Phloton Dashboard  by Anedya"""
 
 import streamlit as st
-
-st.set_page_config(page_title="Phloton IoT Dashboard", layout="wide")
-
 import os
 import json
 from streamlit_autorefresh import st_autorefresh
@@ -16,6 +13,7 @@ from users_ui.admin.admin_dashboard import drawAdminDashboard
 from users_ui.users.users_units_dashboard import drawUsersDashboard
 
 
+st.set_page_config(page_title="Phloton IoT Dashboard", layout="wide")
 
 refresh_interval = 30000
 st_autorefresh(interval=refresh_interval, limit=None, key="auto-refresh-handler")
