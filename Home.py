@@ -32,14 +32,12 @@ def main():
     firebase_db_setup()  # Firebase client Setup
 
     # Manage Anedya Connection Credentials
-    API_KEY=st.secrets["API_KEY"]
+    
     NODES_ID = os.getenv("NODES_ID")
     NODES_ID_JSON = json.loads(NODES_ID)
     st.session_state.nodesId=NODES_ID_JSON
 
-    anedya= Anedya()
-    anedya_client = anedya.new_client(API_KEY)
-    st.session_state.anedya_client = anedya_client
+
 
     VARIABLES_IDENTIFIER = os.getenv("VARIABLES_IDENTIFIER")
     VARIABLES_IDENTIFIER_JSON = json.loads(VARIABLES_IDENTIFIER)
@@ -58,13 +56,18 @@ def main():
 
 
 def drawLogin():
+    API_KEY=st.secrets["API_KEY"]
+    anedya= Anedya()
+    anedya_client = anedya.new_client(API_KEY)
+    st.session_state.anedya_client = anedya_client
+
     current_dir=os.getcwd()
     pages = {
         "Units": [
             st.Page(f"{current_dir}/units/unit_1.py", title="Unit 1"),
         ]
     }
-    # st.navigation(pages,position="hidden")
+    st.navigation(pages,position="hidden")
 
     cols = st.columns([1, 1.2, 1], gap="small")
     with cols[0]:

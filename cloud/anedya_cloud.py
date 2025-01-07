@@ -92,7 +92,7 @@ def get_data(
         "nodes": [nodeId],
         "from": from_time,
         "to": to_time,
-        "limit": 100,
+        "limit": 10000,
         "order": "asc"
     })
     headers = {

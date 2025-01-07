@@ -8,6 +8,11 @@ from cloud.anedya_cloud import Anedya
 UNIT_NUMBER=3
 def draw_unit_1_dashboard():
     
+    NUMBER_OF_NODES= len(st.session_state.nodesId)
+    if NUMBER_OF_NODES< UNIT_NUMBER:
+        st.error("Node ID not found")
+        st.stop()
+    
     anedya= Anedya()
     NODE_ID= st.session_state.nodesId[f"node_{UNIT_NUMBER}"]
     VARIABLES_IDENTIFIER= st.session_state.variablesIdentifier
