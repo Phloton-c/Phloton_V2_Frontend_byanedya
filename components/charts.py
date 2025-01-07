@@ -5,18 +5,21 @@ import altair as alt
 
 # ====================== Altair charts ======================
         
-def draw_chart(chart_title:str=None,chart_data=None,y_axis_title:str=None,x_axis_title:str="Datetime"):
-    if chart_data is None :
+def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = None, x_axis_title: str = "Datetime"):
+    if chart_data is None:
         st.error("No data found")
         return
     elif chart_data.empty:
         st.error("Data is empty")
         return
-    else:
-        if chart_title is not None:
-            st.subheader(chart_title)
-        chart_an = (
-            alt.Chart(data=chart_data)
+
+    print(chart_data)
+    
+    if chart_title:
+        st.subheader(chart_title)
+
+    temperature_chart_an = (
+            alt.Chart(data=chart_data, width=1000, height=400)
             .mark_area( # type: ignore
                 line={"color": "#1fa2ff"},
                 color=alt.Gradient(
@@ -38,7 +41,7 @@ def draw_chart(chart_title:str=None,chart_data=None,y_axis_title:str=None,x_axis
                     shorthand="Datetime:T",
                     axis=alt.Axis(
                         format="%Y-%m-%d %H:%M:%S",
-                        title=x_axis_title,
+                        title="Datetime",
                         tickCount=10,
                         grid=True,
                         tickMinStep=5,
@@ -49,7 +52,7 @@ def draw_chart(chart_title:str=None,chart_data=None,y_axis_title:str=None,x_axis
                     # scale=alt.Scale(domain=[0, 100]),
                     scale=alt.Scale(zero=False, domain=[10, 50]),
                     axis=alt.Axis(
-                        title=y_axis_title, grid=True, tickCount=10
+                        title="Temperature (°C)", grid=True, tickCount=10
                     ),
                 ),  # Q indicates quantitative data
                 tooltip=[
@@ -65,6 +68,4 @@ def draw_chart(chart_title:str=None,chart_data=None,y_axis_title:str=None,x_axis
             .interactive()
         )  # type: ignore
 
-        st.altair_chart(chart_an, use_container_width=True)
-
-    
+    st.altair_chart(temperature_chart_an, use_container_width=True)

@@ -2,15 +2,14 @@
 import streamlit as st
 import os
 
-import streamlit as st
 
-
-def drawAdminDashboard(anedya_client):
+def drawAdminDashboard():
+    
     current_dir=os.getcwd()
     pages = {
         "Admin": [
-            st.Page(f"{current_dir}/users_ui/admin/sections/admin_dashboard.py", title="Admin Dashboard",default=True),
-            st.Page(f"{current_dir}/users_ui/admin/sections/create_users.py", title="Create Users"),
+            st.Page(f"{current_dir}/users_ui/admin/sections/admin_dashboard.py", title="Admin Dashboard", ),
+            st.Page(f"{current_dir}/users_ui/admin/sections/create_users.py", title="Create Users",default=True),
             st.Page(f"{current_dir}/users_ui/admin/sections/users_managements.py", title="Users Managements"),
         ],
         "Units": [

@@ -1,24 +1,21 @@
-"""Phloton Dashboard."""
+"""Phloton Dashboard  by Anedya"""
 
 import streamlit as st
+
+st.set_page_config(page_title="Phloton IoT Dashboard", layout="wide")
+
 import os
-import pytz
-from datetime import date, datetime, timedelta, time
+import json
 from streamlit_autorefresh import st_autorefresh
-
-
 from streamlit_db.session_storage import initialize_session_state
 from cloud.firestore.firestore_client_handler import firebase_db_setup
 from cloud.firestore.firestore_client_handler import firestore_client
-from streamlit_db.users_management import phloton_users
 from css.control_streamlit_cloud_features import hide_streamlit_style
 from cloud.anedya_cloud import Anedya
 from users_ui.admin.admin_dashboard import drawAdminDashboard
 from users_ui.users.users_units_dashboard import drawUsersDashboard
 
-anedya_client = None
 
-st.set_page_config(page_title="Phloton IoT Dashboard", layout="wide")
 
 refresh_interval = 30000
 st_autorefresh(interval=refresh_interval, limit=None, key="auto-refresh-handler")
@@ -31,25 +28,35 @@ def V_SPACE(lines):
 
 
 def main():
-    global anedya_client
 
-    # ------------------- Project Configuration -----------------------
+        # ------------------- Project Configuration -----------------------
     initialize_session_state() # Initialize Session State
     firebase_db_setup()  # Firebase client Setup
 
     # Manage Anedya Connection Credentials
     API_KEY=st.secrets["API_KEY"]
+    NODES_ID = os.getenv("NODES_ID")
+    NODES_ID_JSON = json.loads(NODES_ID)
+    st.session_state.nodesId=NODES_ID_JSON
+
+    anedya= Anedya()
+    anedya_client = anedya.new_client(API_KEY)
+    st.session_state.anedya_client = anedya_client
+
+    VARIABLES_IDENTIFIER = os.getenv("VARIABLES_IDENTIFIER")
+    VARIABLES_IDENTIFIER_JSON = json.loads(VARIABLES_IDENTIFIER)
+    st.session_state.variablesIdentifier=VARIABLES_IDENTIFIER_JSON
+
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
     # ---------------------- UI ---------------------------------------
     if st.session_state.LoggedIn is False:
         drawLogin()
     else:
-        anedya_client= Anedya(API_KEY)
         if st.session_state.view_role == "admin":
-            drawAdminDashboard(anedya_client)
+            drawAdminDashboard()
         else:
-            drawUsersDashboard(anedya_client)
+            drawUsersDashboard()
 
 
 def drawLogin():
@@ -59,7 +66,7 @@ def drawLogin():
             st.Page(f"{current_dir}/units/unit_1.py", title="Unit 1"),
         ]
     }
-    st.navigation(pages,position="hidden")
+    # st.navigation(pages,position="hidden")
 
     cols = st.columns([1, 1.2, 1], gap="small")
     with cols[0]:

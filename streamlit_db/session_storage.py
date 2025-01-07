@@ -13,5 +13,14 @@ def initialize_session_state():
         st.session_state.user_permissions = []
     
     # ======== Anedya ====================
+    if "anedya_client" not in st.session_state:
+        st.session_state.anedya_client = None
+
     if "nodeIds" not in st.session_state:
-        st.session_state.nodeIds = []
+        st.session_state.nodesId = {}
+        
+    if "variablesIdentifier" not in st.session_state:
+        st.session_state.variablesIdentifier = {}
+
+
+
