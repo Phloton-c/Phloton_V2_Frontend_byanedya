@@ -12,11 +12,11 @@ from cloud.firestore.firestore_client_handler import firebase_db_setup
 from cloud.firestore.firestore_client_handler import firestore_client
 from streamlit_db.users_management import phloton_users
 from css.control_streamlit_cloud_features import hide_streamlit_style
-from cloud.anedya import anedya_config
-from cloud.anedya import get_nodeList
+from cloud.anedya_cloud import Anedya
 from users_ui.admin.admin_dashboard import drawAdminDashboard
 from users_ui.users.users_units_dashboard import drawUsersDashboard
 
+anedya_client = None
 
 st.set_page_config(page_title="Phloton IoT Dashboard", layout="wide")
 
@@ -31,6 +31,7 @@ def V_SPACE(lines):
 
 
 def main():
+    global anedya_client
 
     # ------------------- Project Configuration -----------------------
     initialize_session_state() # Initialize Session State
@@ -44,14 +45,11 @@ def main():
     if st.session_state.LoggedIn is False:
         drawLogin()
     else:
-        success = anedya_config(API_KEY=API_KEY)
-        if not success:
-            st.stop()
+        anedya_client= Anedya(API_KEY)
+        if st.session_state.view_role == "admin":
+            drawAdminDashboard(anedya_client)
         else:
-            if st.session_state.view_role == "admin":
-                drawAdminDashboard()
-            else:
-                drawUsersDashboard()
+            drawUsersDashboard(anedya_client)
 
 
 def drawLogin():
@@ -68,7 +66,7 @@ def drawLogin():
         pass
     with cols[1]:
             st.title("Phloton Dashboard Login", anchor=False)
-            username_inp = st.text_input("Username").strip()
+            username_inp = st.text_input("Email").strip()
             password_inp = st.text_input("Password", type="password").strip()
             submit_button = st.button(label="Submit")
             if submit_button:

@@ -6,29 +6,31 @@ import streamlit as st
 import pandas as pd
 import pytz  # Add this import for time zone conversion
 
-nodeId = ""
-apiKey = ""
 
-def anedya_config( API_KEY) -> bool:
-    global apiKey, http_session
-    if API_KEY == "":
-        st.error("Please config a valid NODE ID and API key.")
-        return False
-    elif API_KEY == "":
-        st.error("Please config a valid API key.")
-        return False
+class Anedya:
+    def __init__(self, API_KEY) -> None:
+        if API_KEY == "":
+            st.error("Please config a valid NODE ID and API key.")
 
-    try:
-        apiKey = API_KEY
-        http_session = requests.Session()
-        return True
-    except ValueError:
-        st.error("Please enter a valid NODE ID.")
-        return False
-
+        elif API_KEY == "":
+            st.error("Please config a valid API key.")
+        else:
+             self.API_KEY = API_KEY
+             self.http_session = requests.Session()
+    
+    def get_deviceStatus(self, nodeId: str) -> list:
+        return anedya_getDeviceStatus(self.API_KEY, nodeId, self.http_session)
+    
+    def get_latestData(self, variable_identifier: str, nodeId: str) -> list:
+        return get_latestData(variable_identifier, nodeId, self.API_KEY, self.http_session)
+    
+    def get_aggregatedData(self, variable_identifier: str, from_: int, to: int, aggregation_interval_in_minutes: float, nodeId: str) -> list:
+        return anedya_getData(variable_identifier, from_, to, aggregation_interval_in_minutes, nodeId, self.API_KEY, self.http_session)
+    
+    
 
 @st.cache_data(ttl=9, show_spinner=False)
-def anedya_get_latestData(param_variable_identifier: str, plant=None, machine=None) -> list:
+def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str, http_session) -> list:
 
     url = "https://api.anedya.io/v1/data/latest"
     apiKey_in_formate = "Bearer " + apiKey
@@ -63,6 +65,9 @@ def anedya_getData(
     param_from: int,
     param_to: int,
     param_aggregation_interval_in_minutes: float,
+    nodeId: str,
+    apiKey: str,
+    http_session,
 ) -> list:
     url = "https://api.anedya.io/v1/aggregates/variable/byTime"
     apiKey_in_formate = "Bearer " + apiKey
@@ -96,7 +101,7 @@ def anedya_getData(
 
 
 @st.cache_data(ttl=40, show_spinner=False)
-def anedya_getDeviceStatus():
+def anedya_getDeviceStatus(apiKey, nodeId, http_session):
     url = "https://api.anedya.io/v1/health/status"
     apiKey_in_formate = "Bearer " + apiKey
 
@@ -121,22 +126,22 @@ def anedya_getDeviceStatus():
 
     return value
 
-def get_nodeList():
-    url = "https://api.anedya.io/v1/node/list"
-    apiKey_in_formate = "Bearer " + apiKey
+# def get_nodeList():
+#     url = "https://api.anedya.io/v1/node/list"
+#     apiKey_in_formate = "Bearer " + apiKey
 
-    headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": apiKey_in_formate,
-    }
+#     headers = {
+#         "Content-Type": "application/json",
+#         "Accept": "application/json",
+#         "Authorization": apiKey_in_formate,
+#     }
 
-    payload = json.dumps({
-        "limit" : 100,
-        "offset":0,
-        "order":"asc"
-    })
+#     payload = json.dumps({
+#         "limit" : 100,
+#         "offset":0,
+#         "order":"asc"
+#     })
 
-    response = http_session.request("POST", url, headers=headers, data=payload)
-    response_message = response.text
-    st.write(response_message)
+#     response = http_session.request("POST", url, headers=headers, data=payload)
+#     response_message = response.text
+#     st.write(response_message)

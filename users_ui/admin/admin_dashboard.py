@@ -5,7 +5,7 @@ import os
 import streamlit as st
 
 
-def drawAdminDashboard():
+def drawAdminDashboard(anedya_client):
     current_dir=os.getcwd()
     pages = {
         "Admin": [

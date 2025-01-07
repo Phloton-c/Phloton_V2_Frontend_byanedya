@@ -3,7 +3,7 @@ import streamlit as st
 import os
 
 
-def drawUsersDashboard():
+def drawUsersDashboard(anedya_client):
     current_dir=os.getcwd()
     user_permissions = st.session_state.user_permissions
     Units_pages = []
