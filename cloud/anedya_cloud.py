@@ -62,7 +62,7 @@ def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str) -> 
         data = json.loads(response_message).get("data")
         if data=={} or data==None:
             print("No Data found")
-            st.error("No Data found")
+            # st.toast("No Data found")
             return {"isSuccess": False, "data": None, "timestamp": None}
         else:
             data=data[nodeId].get("value")

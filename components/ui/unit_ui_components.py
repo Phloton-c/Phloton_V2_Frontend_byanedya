@@ -57,13 +57,25 @@ def gauge_section(data:list=None):
         r1_guage_cols = st.columns([1,1,1,1], gap="small")
 
         with r1_guage_cols[0]:
-            sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")   # jsut interchnages the 0 and 1 gauge
+            if data[0]!=-1:
+                sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[1]:
-            sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
+            if data[1]!=-1:
+                sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[2]:
-            sv.gauge(data[2],"Flask Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+            if data[2]!=-1:
+                sv.gauge(data[2],"Flask Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[3]:
-            sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+            if data[3]!=-1:
+                sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+            else:
+                st.error("No Data Available")
 
 def graph_section(node_client=None):
     if node_client is None:

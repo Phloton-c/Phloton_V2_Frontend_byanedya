@@ -9,10 +9,10 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
     if chart_title:
         st.subheader(chart_title)
     if chart_data is None:
-        st.error("No data found")
+        st.error("No data Available")
         return
     elif chart_data.empty:
-        st.error("No data found")
+        st.error("No data Available")
         return
 
         
