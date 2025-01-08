@@ -44,10 +44,21 @@ def unit_header(title, des=None, node_client=None,device_status_res=None):
     if des is not None:
         st.markdown(des)
 
-def unit_details(details:list=None):
-    st.text("Device ID: ")
-    st.text("MAC ID: ")
-    st.text("IMEI No.: ")
+def unit_details(node_client=None):
+    res=node_client.get_valueStore(key="Fan")
+    if res.get("isSuccess") is True and res.get("value") is not None:
+        DEVICE_ID=res.get("value")
+        st.text(f"Device ID: {DEVICE_ID}")
+    res=None
+    res=node_client.get_valueStore(key="Fan")
+    if res.get("isSuccess") is True and res.get("value") is not None:
+        MAC_ID=res.get("value")
+        st.text(f"MAC ID: {MAC_ID}")
+    res=None
+    res=node_client.get_valueStore(key="Fan")
+    if res.get("isSuccess") is True and res.get("value") is not None:
+        IMEI_ID=res.get("value")
+        st.text(f"IMEI No.: {IMEI_ID}")
 
 def gauge_section(data:list=None):
     container = st.container(border=True,height=300)

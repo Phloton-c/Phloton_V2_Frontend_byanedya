@@ -18,7 +18,7 @@ def draw_unit_1_dashboard():
     device_status_res=node.get_deviceStatus()
     unit_header(f"Phloton Unit {UNIT_NUMBER}",node_client=node,device_status_res=device_status_res)
 
-    unit_details()
+    unit_details(node)
 
     gauge_data_list=[0,0,0,0,0]
     unit_battery_soc_res=node.get_latestData(VARIABLES["variable_1"].get("identifier"))
