@@ -8,14 +8,20 @@ import time
 
 from components.charts import draw_chart
 
-def unit_header(title, des=None, device_status_res=None):
+def unit_header(title, des=None, node_client=None,device_status_res=None):
     if title is None:
         st.error("Please provide a valid title.")
-    headercols = st.columns([1,0.06,0.11,0.12, 0.12], gap="small")
+    VARIABLES= st.session_state.variablesIdentifier
+    headercols = st.columns([1,0.09,0.11,0.12, 0.12], gap="small")
     with headercols[0]:
         st.title(title, anchor=False)
     with headercols[1]:
-        st.button("0",disabled=True,use_container_width=True)
+        res=node_client.get_latestData(VARIABLES["variable_5"].get("identifier"))
+        if res is not None and res.get("isSuccess") is True and res.get("data") is not None:
+            fault=res.get("data")
+        else:
+            fault="ND"
+        st.button(str(fault),disabled=True,use_container_width=True)
     with headercols[2]:
         if device_status_res is not None or device_status_res.get("status") is True:
             device_status=None
