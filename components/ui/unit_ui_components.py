@@ -47,18 +47,10 @@ def unit_header(title, des=None, node_client=None,device_status_res=None):
 def unit_details(node_client=None):
     res=node_client.get_valueStore(key="Device ID")
     if res.get("isSuccess") is True and res.get("value") is not None:
-        DEVICE_ID=res.get("value")
-        st.text(f"Device ID: {DEVICE_ID}")
-    res=None
-    res=node_client.get_valueStore(key="MAC ID")
-    if res.get("isSuccess") is True and res.get("value") is not None:
-        MAC_ID=res.get("value")
-        st.text(f"MAC ID: {MAC_ID}")
-    res=None
-    res=node_client.get_valueStore(key="IMEI ID")
-    if res.get("isSuccess") is True and res.get("value") is not None:
-        IMEI_ID=res.get("value")
-        st.text(f"IMEI No.: {IMEI_ID}")
+        value=res.get("value")
+        st.text(f"Device ID: {value.get('device_id')}")
+        st.text(f"MAC ID: {value.get('mac_id')}")
+        st.text(f"IMEI No.: {value.get('imei_id')}")
 
 def gauge_section(data:list=None):
     container = st.container(border=True,height=300)
