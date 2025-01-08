@@ -62,8 +62,8 @@ def unit_details(node_client=None):
 
 def gauge_section(data:list=None):
     container = st.container(border=True,height=300)
+    VARIABLES= st.session_state.variablesIdentifier
     with container:
-        
         if data[4]!=0:
             indian_time_zone = pytz.timezone('Asia/Kolkata')   # set time zone
             hr_timestamp = datetime.fromtimestamp(data[4], indian_time_zone)
@@ -75,22 +75,30 @@ def gauge_section(data:list=None):
 
         with r1_guage_cols[0]:
             if data[1]!=-1:
-                sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")
+                arTop=VARIABLES["variable_2"].get("top_range")
+                arBot=VARIABLES["variable_2"].get("bottom_range")
+                sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V",arTop=int(arTop),arBot=int(arBot))
             else:
                 st.error("No Data Available")
         with r1_guage_cols[1]:
             if data[0]!=-1:
-                sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
+                arTop=int(VARIABLES["variable_1"].get("top_range"))
+                arBot=int(VARIABLES["variable_1"].get("bottom_range"))
+                sv.gauge(data[0],"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix=" %",arTop=arTop,arBot=arBot)
             else:
                 st.error("No Data Available")
         with r1_guage_cols[2]:
             if data[2]!=-1:
-                sv.gauge(data[2],"Flask Average Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+                arTop=int(VARIABLES["variable_3"].get("top_range"))
+                arBot=int(VARIABLES["variable_3"].get("bottom_range"))
+                sv.gauge(data[2],"Flask Average Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=arTop,arBot=arBot)
             else:
                 st.error("No Data Available")
         with r1_guage_cols[3]:
             if data[3]!=-1:
-                sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+                arTop=int(VARIABLES["variable_4"].get("top_range"))
+                arBot=int(VARIABLES["variable_4"].get("bottom_range"))
+                sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=arTop,arBot=arBot)
             else:
                 st.error("No Data Available")
 
