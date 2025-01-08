@@ -23,5 +23,9 @@ def initialize_session_state():
     if "firestore_client" not in st.session_state:
         st.session_state.firestore_client = None
 
+    # ======== HTTP ======================
+    if "http_client" not in st.session_state:
+        st.session_state.http_client = None
+
 
 

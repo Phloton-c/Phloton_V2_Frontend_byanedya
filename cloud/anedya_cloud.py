@@ -1,5 +1,4 @@
 import json
-import requests
 import streamlit as st
 import pandas as pd
 import pytz
@@ -25,7 +24,6 @@ class NewClient:
             st.error("Please config a valid API key.")
         else:
             self.API_KEY = API_KEY
-            self.http_session = requests.Session()
 
 
 class NewNode:
@@ -62,7 +60,7 @@ def anedya_getDeviceStatus(apiKey, nodeId) -> dict:
         "Authorization": apiKey_in_formate,
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload,timeout=10)
+    response = st.session_state.http_client.request("POST", url, headers=headers, data=payload,timeout=10)
     responseMessage = response.text
 
     errorCode = json.loads(responseMessage).get("errcode")
@@ -93,7 +91,7 @@ def get_latestData(param_variable_identifier: str, nodeId: str, apiKey: str) -> 
         "Authorization": apiKey_in_formate,
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload, timeout=10)
+    response = st.session_state.http_client.request("POST", url, headers=headers, data=payload, timeout=10)
     # response=request("POST", url, headers=headers, data=payload)
     response_message = response.text
     if response.status_code == 200:
@@ -143,7 +141,7 @@ def get_data(
         "Authorization": apiKey_in_formate,
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload, timeout=10)
+    response = st.session_state.http_client.request("POST", url, headers=headers, data=payload, timeout=10)
     response_message = response.text
     # st.write(response_message)
 
@@ -203,7 +201,7 @@ def anedya_getValueStore(
         "Authorization": f"Bearer {apiKey}",
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = st.session_state.http_client.request("POST", url, headers=headers, data=payload)
     responseMessage = response.text
 
     isSucess = json.loads(responseMessage).get("success")

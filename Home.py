@@ -3,6 +3,7 @@
 import streamlit as st
 import os
 import json
+import requests
 from streamlit_autorefresh import st_autorefresh
 from streamlit_db.session_storage import initialize_session_state
 from cloud.firestore.firestore_client_handler import firebase_db_setup
@@ -42,6 +43,7 @@ def main():
 def project_setup():
     initialize_session_state() # Initialize Session State
     firebase_db_setup()  # Firebase client Setup
+    st.session_state.http_client =requests.Session()
     # Manage Anedya Connection Credentials
     API_KEY=st.secrets["API_KEY"]
     anedya= Anedya()
