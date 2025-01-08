@@ -109,30 +109,36 @@ def graph_section(node_client=None):
         if len(show_charts)>0:
             r1_graph_cols = st.columns([1,1,1], gap="small")
             with r1_graph_cols[0]:
-                identifier = get_identifier_by_name(VARIABLES, show_charts[0])
-                unit_battery_soc_data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                draw_chart(chart_title=show_charts[0],chart_data=unit_battery_soc_data,y_axis_title="Temperature")
+                VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[0])
+                VARIABLE = VARIABLES.get(VARIABLE_KEY)
+                data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
+                draw_chart(chart_title=show_charts[0], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
             with r1_graph_cols[1]:
-                if len(show_charts)>1:
-                    identifier = get_identifier_by_name(VARIABLES, show_charts[1])
-                    data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                    draw_chart(chart_title=show_charts[1],chart_data=data,y_axis_title="Voltage(V)")
+                if len(show_charts) > 1:
+                    VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[1])
+                    VARIABLE = VARIABLES.get(VARIABLE_KEY)
+                    data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
+                    draw_chart(chart_title=show_charts[1], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
             with r1_graph_cols[2]:
-                if len(show_charts)>2:
-                    identifier = get_identifier_by_name(VARIABLES, show_charts[2])
-                    data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                    draw_chart(chart_title=show_charts[2],chart_data=data,y_axis_title="Celsius(°C)")
+                if len(show_charts) > 2:
+                    VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[2])
+                    VARIABLE = VARIABLES.get(VARIABLE_KEY)
+                    data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
+                    draw_chart(chart_title=show_charts[2], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
 
-        if len(show_charts)>3:
-            r2_graph_cols = st.columns([1,1,1], gap="small") 
+        if len(show_charts) > 3:
+            r2_graph_cols = st.columns([1, 1, 1], gap="small")
             with r2_graph_cols[0]:
-                identifier = get_identifier_by_name(VARIABLES, show_charts[3])
-                data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                draw_chart(chart_title=show_charts[3],chart_data=data,y_axis_title="Celsius(°C)")
+                VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[3])
+                VARIABLE = VARIABLES.get(VARIABLE_KEY)
+                data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
+                draw_chart(chart_title=show_charts[3], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
 
 
-def get_identifier_by_name(data, search_name):
-    for variable in data.values():
+
+def get_variable_key_by_name(data, search_name):
+    for key, variable in data.items():
         if variable["name"] == search_name:
-            return variable["identifier"]
-    return None  # Return None if not found
+            return key
+    return None
+
