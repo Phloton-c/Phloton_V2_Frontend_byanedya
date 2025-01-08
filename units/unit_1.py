@@ -3,6 +3,7 @@ from components.ui.unit_ui_components import unit_header
 from components.ui.unit_ui_components import unit_details
 from components.ui.unit_ui_components import gauge_section
 from components.ui.unit_ui_components import graph_section
+from components.ui.unit_ui_components import map_section
 from cloud.anedya_cloud import Anedya
 
 UNIT_NUMBER=1
@@ -49,8 +50,7 @@ def draw_unit_1_dashboard():
         gauge_data_list[4]=0
 
     gauge_section(gauge_data_list)
-
-
     graph_section(node)
+    map_section(node)
 
 draw_unit_1_dashboard()

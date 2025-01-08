@@ -103,19 +103,44 @@ def graph_section(node_client=None):
         multislect_cols = st.columns([0.7,1], gap="small")
         with multislect_cols[0]:
             show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=options,label_visibility="hidden")
-        if (show_charts is None) or (len(show_charts)==0):
-            st.stop()
+
 
         for i in range(0, len(show_charts), 3):
             r2_graph_cols = st.columns([1, 1, 1], gap="small")
             for j, chart in enumerate(show_charts[i:i+3]):
-                VARIABLE_KEY = get_variable_key_by_name(VARIABLES, chart)
-                VARIABLE = VARIABLES.get(VARIABLE_KEY)
-                data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
                 with r2_graph_cols[j]:
-                    draw_chart(chart_title=chart, chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
+                    VARIABLE_KEY = get_variable_key_by_name(VARIABLES, chart)
+                    if VARIABLE_KEY is not None:
+                        VARIABLE = VARIABLES.get(VARIABLE_KEY)
+                        data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
+                        draw_chart(chart_title=chart, chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
+                    else:
+                        st.subheader(chart)
+                        st.error("Variable not found")
 
+def map_section(node_client=None):
+    container = st.container(border=True)
+    with container:
+        st.subheader(body="Device Location", anchor=False)
+        res=node_client.get_latestData("location")
+        if res.get("isSuccess") is True and res.get("data") is not None:
+            location=res.get("data")
+            last_updated=res.get("timestamp")
+            indian_time_zone = pytz.timezone('Asia/Kolkata')   # set time zone
+            hr_timestamp = datetime.fromtimestamp(last_updated, indian_time_zone)
+            fm_hr_timestamp=hr_timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')
+            st.text(f"Last Updated: {fm_hr_timestamp}")
 
+            latitude=location.get("lat")
+            longitude=location.get("long")  
+            locationData = pd.DataFrame(
+                {"latitude": [latitude], "longitude": [longitude]}
+            )
+            st.map(
+                locationData, zoom=14, color="#0044ff", size=25, use_container_width=True
+            )
+        else:
+            st.error("No Data Available")
 
 def get_variable_key_by_name(data, search_name):
     for key, variable in data.items():
