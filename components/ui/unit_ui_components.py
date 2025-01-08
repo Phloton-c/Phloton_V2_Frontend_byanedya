@@ -63,18 +63,18 @@ def gauge_section(data:list=None):
         r1_guage_cols = st.columns([1,1,1,1], gap="small")
 
         with r1_guage_cols[0]:
-            if data[0]!=-1:
-                sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
-            else:
-                st.error("No Data Available")
-        with r1_guage_cols[1]:
             if data[1]!=-1:
                 sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")
             else:
                 st.error("No Data Available")
+        with r1_guage_cols[1]:
+            if data[0]!=-1:
+                sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[2]:
             if data[2]!=-1:
-                sv.gauge(data[2],"Flask Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+                sv.gauge(data[2],"Flask Average Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
             else:
                 st.error("No Data Available")
         with r1_guage_cols[3]:
@@ -93,9 +93,9 @@ def graph_section(node_client=None):
 
         options:list=None
         if st.session_state.view_role == "user":
-            options=["Battery Voltage","Unit Battery SoC","Flask Temperature","Ambient Temperature"]
+            options=["Battery Voltage","Unit Battery SoC","Flask Average Temperature","Ambient Temperature"]
         else:
-            options=["Battery Voltage","Unit Battery SoC","Flask Temperature", "Ambient Temperature"]
+            options=["Battery Voltage","Unit Battery SoC","Flask Average Temperature", "Ambient Temperature","TEC Current","HS FAN Current","CS FAN Current","Flask Top Temperature", "Heat Sink Temperature","Cold Sink Temperature","Flask Down Temperature","TEC Status","HS FAN Status","CS FAN Status", "TEC DutyCycle","HS FAN DutyCycle","CS FAN DutyCycle"]
 
         VARIABLES=st.session_state.variablesIdentifier
         # st.write(VARIABLES)
@@ -106,33 +106,14 @@ def graph_section(node_client=None):
         if (show_charts is None) or (len(show_charts)==0):
             st.stop()
 
-        if len(show_charts)>0:
-            r1_graph_cols = st.columns([1,1,1], gap="small")
-            with r1_graph_cols[0]:
-                VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[0])
-                VARIABLE = VARIABLES.get(VARIABLE_KEY)
-                data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
-                draw_chart(chart_title=show_charts[0], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
-            with r1_graph_cols[1]:
-                if len(show_charts) > 1:
-                    VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[1])
-                    VARIABLE = VARIABLES.get(VARIABLE_KEY)
-                    data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
-                    draw_chart(chart_title=show_charts[1], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
-            with r1_graph_cols[2]:
-                if len(show_charts) > 2:
-                    VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[2])
-                    VARIABLE = VARIABLES.get(VARIABLE_KEY)
-                    data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
-                    draw_chart(chart_title=show_charts[2], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
-
-        if len(show_charts) > 3:
+        for i in range(0, len(show_charts), 3):
             r2_graph_cols = st.columns([1, 1, 1], gap="small")
-            with r2_graph_cols[0]:
-                VARIABLE_KEY = get_variable_key_by_name(VARIABLES, show_charts[3])
+            for j, chart in enumerate(show_charts[i:i+3]):
+                VARIABLE_KEY = get_variable_key_by_name(VARIABLES, chart)
                 VARIABLE = VARIABLES.get(VARIABLE_KEY)
                 data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
-                draw_chart(chart_title=show_charts[3], chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
+                with r2_graph_cols[j]:
+                    draw_chart(chart_title=chart, chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
 
 
 
