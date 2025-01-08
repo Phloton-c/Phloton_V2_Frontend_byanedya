@@ -48,8 +48,8 @@ def draw_unit_1_dashboard():
     else:
         gauge_data_list[3]=-1
         gauge_data_list[4]=0
-
     gauge_section(gauge_data_list)
+    
     graph_section(node)
     map_section(node)
 
