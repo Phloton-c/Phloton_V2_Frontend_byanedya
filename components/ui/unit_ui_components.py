@@ -102,7 +102,7 @@ def graph_section(node_client=None):
 
         multislect_cols = st.columns([0.7,1], gap="small")
         with multislect_cols[0]:
-            show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=options,label_visibility="hidden")
+            show_charts=st.multiselect("Show Charts",placeholder="Show Charts",options=options,label_visibility="hidden")
 
 
         for i in range(0, len(show_charts), 3):
