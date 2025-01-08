@@ -5,14 +5,14 @@ import altair as alt
 
 # ====================== Altair charts ======================
         
-def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = None, x_axis_title: str = "Datetime"):
+def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = None, x_axis_title: str = "Datetime",topRange:int=50,bottomRange:int=0):
     if chart_title:
         st.subheader(chart_title)
     if chart_data is None:
-        st.error("No data found")
+        st.error("No Data Available")
         return
     elif chart_data.empty:
-        st.error("No data found")
+        st.error("No Data Available")
         return
 
         
@@ -39,7 +39,7 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
                     shorthand="Datetime:T",
                     axis=alt.Axis(
                         format="%Y-%m-%d %H:%M:%S",
-                        title="Datetime",
+                        title=x_axis_title,
                         tickCount=10,
                         grid=True,
                         tickMinStep=5,
@@ -48,9 +48,9 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
                 y=alt.Y(
                     "value:Q",
                     # scale=alt.Scale(domain=[0, 100]),
-                    scale=alt.Scale(zero=False, domain=[10, 50]),
+                    scale=alt.Scale(zero=False, domain=[bottomRange, topRange]),
                     axis=alt.Axis(
-                        title="Temperature (°C)", grid=True, tickCount=30
+                        title=y_axis_title, grid=True, tickCount=30
                     ),
                 ),  # Q indicates quantitative data
                 tooltip=[

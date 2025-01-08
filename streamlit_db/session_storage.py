@@ -3,9 +3,6 @@ import streamlit as st
 
 def initialize_session_state():
 
-    if "LoggedIn" not in st.session_state:
-        st.session_state.LoggedIn = False
-
     if "view_role" not in st.session_state:
         st.session_state.view_role = "admin"
 
@@ -21,6 +18,14 @@ def initialize_session_state():
         
     if "variablesIdentifier" not in st.session_state:
         st.session_state.variablesIdentifier = {}
+    
+    # ======== Firestore =================
+    if "firestore_client" not in st.session_state:
+        st.session_state.firestore_client = None
+
+    # ======== HTTP ======================
+    if "http_client" not in st.session_state:
+        st.session_state.http_client = None
 
 
 

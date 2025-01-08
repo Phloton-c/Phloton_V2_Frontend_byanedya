@@ -3,10 +3,10 @@
 import streamlit as st
 import os
 import json
+import requests
 from streamlit_autorefresh import st_autorefresh
 from streamlit_db.session_storage import initialize_session_state
 from cloud.firestore.firestore_client_handler import firebase_db_setup
-from cloud.firestore.firestore_client_handler import firestore_client
 from css.control_streamlit_cloud_features import hide_streamlit_style
 from cloud.anedya_cloud import Anedya
 from users_ui.admin.admin_dashboard import drawAdminDashboard
@@ -26,27 +26,13 @@ def V_SPACE(lines):
 
 
 def main():
-
-        # ------------------- Project Configuration -----------------------
-    initialize_session_state() # Initialize Session State
-    firebase_db_setup()  # Firebase client Setup
-
-    # Manage Anedya Connection Credentials
-    
-    NODES_ID = os.getenv("NODES_ID")
-    NODES_ID_JSON = json.loads(NODES_ID)
-    st.session_state.nodesId=NODES_ID_JSON
-
-
-
-    VARIABLES_IDENTIFIER = os.getenv("VARIABLES_IDENTIFIER")
-    VARIABLES_IDENTIFIER_JSON = json.loads(VARIABLES_IDENTIFIER)
-    st.session_state.variablesIdentifier=VARIABLES_IDENTIFIER_JSON
-
+    if "LoggedIn" not in st.session_state:
+        st.session_state.LoggedIn = False
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
+    
     # ---------------------- UI ---------------------------------------
     if st.session_state.LoggedIn is False:
+        project_setup()
         drawLogin()
     else:
         if st.session_state.view_role == "admin":
@@ -54,13 +40,25 @@ def main():
         else:
             drawUsersDashboard()
 
-
-def drawLogin():
+def project_setup():
+    initialize_session_state() # Initialize Session State
+    firebase_db_setup()  # Firebase client Setup
+    st.session_state.http_client =requests.Session()
+    # Manage Anedya Connection Credentials
     API_KEY=st.secrets["API_KEY"]
     anedya= Anedya()
     anedya_client = anedya.new_client(API_KEY)
     st.session_state.anedya_client = anedya_client
 
+    NODES_ID = os.getenv("NODES_ID")
+    NODES_ID_JSON = json.loads(NODES_ID)
+    st.session_state.nodesId=NODES_ID_JSON
+    VARIABLES_IDENTIFIER = os.getenv("VARIABLES_IDENTIFIER")
+    VARIABLES_IDENTIFIER_JSON = json.loads(VARIABLES_IDENTIFIER)
+    st.session_state.variablesIdentifier=VARIABLES_IDENTIFIER_JSON
+
+
+def drawLogin():
     current_dir=os.getcwd()
     pages = {
         "Units": [
@@ -82,7 +80,7 @@ def drawLogin():
             
 
 def check_credentials(username,password):
-    user_details = firestore_client.collection("users").document(username).get().to_dict()
+    user_details = st.session_state.firestore_client.collection("users").document(username).get().to_dict()
     if user_details is None:
         st.error("Invalid Credential!")
         st.stop()

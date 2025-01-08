@@ -5,17 +5,23 @@ import pytz
 import numpy as np
 import pandas as pd
 import time
-
+import json
 from components.charts import draw_chart
 
-def unit_header(title, des=None, device_status_res=None):
+def unit_header(title, des=None, node_client=None,device_status_res=None):
     if title is None:
         st.error("Please provide a valid title.")
-    headercols = st.columns([1,0.06,0.11,0.12, 0.12], gap="small")
+    VARIABLES= st.session_state.variablesIdentifier
+    headercols = st.columns([1,0.09,0.11,0.12, 0.12], gap="small")
     with headercols[0]:
         st.title(title, anchor=False)
     with headercols[1]:
-        st.button("0",disabled=True,use_container_width=True)
+        res=node_client.get_latestData(VARIABLES["variable_5"].get("identifier"))
+        if res is not None and res.get("isSuccess") is True and res.get("data") is not None:
+            fault=res.get("data")
+        else:
+            fault="ND"
+        st.button(str(fault),disabled=True,use_container_width=True)
     with headercols[2]:
         if device_status_res is not None or device_status_res.get("status") is True:
             device_status=None
@@ -38,15 +44,21 @@ def unit_header(title, des=None, device_status_res=None):
     if des is not None:
         st.markdown(des)
 
-def unit_details(details:list=None):
-    st.text("Device ID: ")
-    st.text("MAC ID: ")
-    st.text("IMEI No.: ")
+def unit_details(node_client=None):
+    res=node_client.get_valueStore(key="DEVICEINFO")
+    st.write(res)
+    res_json=json.loads(res)
+    st.write(res_json)
+    if res_json.get("isSuccess") is True and res_json.get("value") is not None:
+        value=res_json.get("value")
+        st.text(f"Device ID: {value.get('device_id')}")
+        st.text(f"MAC ID: {value.get('mac_id')}")
+        st.text(f"IMEI No.: {value.get('imei_id')}")
 
 def gauge_section(data:list=None):
     container = st.container(border=True,height=300)
+    VARIABLES= st.session_state.variablesIdentifier
     with container:
-        
         if data[4]!=0:
             indian_time_zone = pytz.timezone('Asia/Kolkata')   # set time zone
             hr_timestamp = datetime.fromtimestamp(data[4], indian_time_zone)
@@ -57,13 +69,33 @@ def gauge_section(data:list=None):
         r1_guage_cols = st.columns([1,1,1,1], gap="small")
 
         with r1_guage_cols[0]:
-            sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V")   # jsut interchnages the 0 and 1 gauge
+            if data[1]!=-1:
+                arTop=VARIABLES["variable_2"].get("top_range")
+                arBot=VARIABLES["variable_2"].get("bottom_range")
+                sv.gauge(data[1],"Battery Voltage",gMode="number",cWidth=True,gSize="MED",sFix="V",arTop=int(arTop),arBot=int(arBot))
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[1]:
-            sv.gauge(data[0]/100,"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix="%")
+            if data[0]!=-1:
+                arTop=int(VARIABLES["variable_1"].get("top_range"))
+                arBot=int(VARIABLES["variable_1"].get("bottom_range"))
+                sv.gauge(data[0],"Phloton Unit Battery SoC",cWidth=True,gSize="MED",sFix=" %",arTop=arTop,arBot=arBot)
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[2]:
-            sv.gauge(data[2],"Flask Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+            if data[2]!=-1:
+                arTop=int(VARIABLES["variable_3"].get("top_range"))
+                arBot=int(VARIABLES["variable_3"].get("bottom_range"))
+                sv.gauge(data[2],"Flask Average Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=arTop,arBot=arBot)
+            else:
+                st.error("No Data Available")
         with r1_guage_cols[3]:
-            sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=45)
+            if data[3]!=-1:
+                arTop=int(VARIABLES["variable_4"].get("top_range"))
+                arBot=int(VARIABLES["variable_4"].get("bottom_range"))
+                sv.gauge(data[3],"Ambient Temperature",cWidth=True,gSize="MED",sFix="°C",arTop=arTop,arBot=arBot)
+            else:
+                st.error("No Data Available")
 
 def graph_section(node_client=None):
     if node_client is None:
@@ -75,46 +107,58 @@ def graph_section(node_client=None):
 
         options:list=None
         if st.session_state.view_role == "user":
-            options=["Battery Voltage","Unit Battery SoC","Flask Temperature","Ambient Temperature"]
+            options=["Battery Voltage","Unit Battery SoC","Flask Average Temperature","Ambient Temperature"]
         else:
-            options=["Battery Voltage","Unit Battery SoC","Flask Temperature", "Ambient Temperature"]
+            options=["Battery Voltage","Unit Battery SoC","Flask Average Temperature", "Ambient Temperature","TEC Current","HS FAN Current","CS FAN Current","Flask Top Temperature", "Heat Sink Temperature","Cold Sink Temperature","Flask Down Temperature","TEC Status","HS FAN Status","CS FAN Status", "TEC DutyCycle","HS FAN DutyCycle","CS FAN DutyCycle"]
 
         VARIABLES=st.session_state.variablesIdentifier
         # st.write(VARIABLES)
 
         multislect_cols = st.columns([0.7,1], gap="small")
         with multislect_cols[0]:
-            show_charts=st.multiselect("Select Charts",placeholder="Select Charts",options=options,label_visibility="hidden")
-        if (show_charts is None) or (len(show_charts)==0):
-            st.stop()
-
-        if len(show_charts)>0:
-            r1_graph_cols = st.columns([1,1,1], gap="small")
-            with r1_graph_cols[0]:
-                identifier = get_identifier_by_name(VARIABLES, show_charts[0])
-                unit_battery_soc_data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                draw_chart(chart_title=show_charts[0],chart_data=unit_battery_soc_data,y_axis_title="Temperature")
-            with r1_graph_cols[1]:
-                if len(show_charts)>1:
-                    identifier = get_identifier_by_name(VARIABLES, show_charts[1])
-                    data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                    draw_chart(chart_title=show_charts[1],chart_data=data,y_axis_title="Voltage(V)")
-            with r1_graph_cols[2]:
-                if len(show_charts)>2:
-                    identifier = get_identifier_by_name(VARIABLES, show_charts[2])
-                    data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                    draw_chart(chart_title=show_charts[2],chart_data=data,y_axis_title="Celsius(°C)")
-
-        if len(show_charts)>3:
-            r2_graph_cols = st.columns([1,1,1], gap="small") 
-            with r2_graph_cols[0]:
-                identifier = get_identifier_by_name(VARIABLES, show_charts[3])
-                data=node_client.get_data(identifier, pastHour_Time, currentTime)
-                draw_chart(chart_title=show_charts[3],chart_data=data,y_axis_title="Celsius(°C)")
+            show_charts=st.multiselect("Show Charts",placeholder="Show Charts",options=options,label_visibility="hidden")
 
 
-def get_identifier_by_name(data, search_name):
-    for variable in data.values():
+        for i in range(0, len(show_charts), 3):
+            r2_graph_cols = st.columns([1, 1, 1], gap="small")
+            for j, chart in enumerate(show_charts[i:i+3]):
+                with r2_graph_cols[j]:
+                    VARIABLE_KEY = get_variable_key_by_name(VARIABLES, chart)
+                    if VARIABLE_KEY is not None:
+                        VARIABLE = VARIABLES.get(VARIABLE_KEY)
+                        data = node_client.get_data(VARIABLE.get("identifier"), pastHour_Time, currentTime)
+                        draw_chart(chart_title=chart, chart_data=data, y_axis_title=VARIABLE.get("unit"), bottomRange=VARIABLE.get("bottom_range"), topRange=VARIABLE.get("top_range"))
+                    else:
+                        st.subheader(chart)
+                        st.error("Variable not found")
+
+def map_section(node_client=None):
+    container = st.container(border=True)
+    with container:
+        st.subheader(body="Device Location", anchor=False)
+        res=node_client.get_latestData("location")
+        if res.get("isSuccess") is True and res.get("data") is not None:
+            location=res.get("data")
+            last_updated=res.get("timestamp")
+            indian_time_zone = pytz.timezone('Asia/Kolkata')   # set time zone
+            hr_timestamp = datetime.fromtimestamp(last_updated, indian_time_zone)
+            fm_hr_timestamp=hr_timestamp.strftime('%Y-%m-%d %H:%M:%S %Z')
+            st.text(f"Last Updated: {fm_hr_timestamp}")
+
+            latitude=location.get("lat")
+            longitude=location.get("long")  
+            locationData = pd.DataFrame(
+                {"latitude": [latitude], "longitude": [longitude]}
+            )
+            st.map(
+                locationData, zoom=14, color="#0044ff", size=25, use_container_width=True
+            )
+        else:
+            st.error("No Data Available")
+
+def get_variable_key_by_name(data, search_name):
+    for key, variable in data.items():
         if variable["name"] == search_name:
-            return variable["identifier"]
-    return None  # Return None if not found
+            return key
+    return None
+

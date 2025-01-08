@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 
-from cloud.firestore.firestore_client_handler import firestore_client
 
 
 def manage_users_ui():
@@ -48,7 +47,7 @@ def delete_user_ui():
 
 def delete_user(email):
     try:
-        response = firestore_client.collection("users").document(email).delete()
+        response = st.session_state.firestore_client.collection("users").document(email).delete()
         if response is not None:
             st.toast("User deleted successfully", icon="🎉")
         else:
@@ -61,7 +60,7 @@ def delete_user(email):
 def edit_user(email, edit_req_payload):
     try:
         response = (
-            firestore_client.collection("users")
+            st.session_state.firestore_client.collection("users")
             .document(email)
             .update(edit_req_payload)
         )
@@ -126,7 +125,7 @@ def edits_user_ui():
 
 def list_users_ui():
     container = st.container(border=True)
-    list_users = firestore_client.collection("users").stream()
+    list_users = st.session_state.firestore_client.collection("users").stream()
     user_dict = {user.id: user.to_dict() for user in list_users}
 
     formatted_data = {
