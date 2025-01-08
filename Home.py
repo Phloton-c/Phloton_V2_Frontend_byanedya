@@ -6,7 +6,6 @@ import json
 from streamlit_autorefresh import st_autorefresh
 from streamlit_db.session_storage import initialize_session_state
 from cloud.firestore.firestore_client_handler import firebase_db_setup
-from cloud.firestore.firestore_client_handler import firestore_client
 from css.control_streamlit_cloud_features import hide_streamlit_style
 from cloud.anedya_cloud import Anedya
 from users_ui.admin.admin_dashboard import drawAdminDashboard
@@ -79,7 +78,7 @@ def drawLogin():
             
 
 def check_credentials(username,password):
-    user_details = firestore_client.collection("users").document(username).get().to_dict()
+    user_details = st.session_state.firestore_client.collection("users").document(username).get().to_dict()
     if user_details is None:
         st.error("Invalid Credential!")
         st.stop()

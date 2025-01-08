@@ -1,6 +1,5 @@
 import streamlit as st
 
-from cloud.firestore.firestore_client_handler import firestore_client
 
 def create_users_ui():
     headercols = st.columns([1,0.1, 0.1], gap="small")
@@ -47,7 +46,7 @@ def create_users_section():
 
 def create_user(name,email,password,permissions):
     try:
-        response= firestore_client.collection("users").document(email).set({"name":name,"role":"user","email":email,"password":password,"permissions":permissions},merge=True)
+        response= st.session_state.firestore_client.collection("users").document(email).set({"name":name,"role":"user","email":email,"password":password,"permissions":permissions},merge=True)
         if response is not None:
             st.toast("User created successfully",icon="🎉")
         else:

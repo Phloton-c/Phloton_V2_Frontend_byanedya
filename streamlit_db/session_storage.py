@@ -18,6 +18,10 @@ def initialize_session_state():
         
     if "variablesIdentifier" not in st.session_state:
         st.session_state.variablesIdentifier = {}
+    
+    # ======== Firestore =================
+    if "firestore_client" not in st.session_state:
+        st.session_state.firestore_client = None
 
 
 
