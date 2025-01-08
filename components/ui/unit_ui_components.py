@@ -5,7 +5,7 @@ import pytz
 import numpy as np
 import pandas as pd
 import time
-
+import json
 from components.charts import draw_chart
 
 def unit_header(title, des=None, node_client=None,device_status_res=None):
@@ -45,9 +45,12 @@ def unit_header(title, des=None, node_client=None,device_status_res=None):
         st.markdown(des)
 
 def unit_details(node_client=None):
-    res=node_client.get_valueStore(key="Device ID")
-    if res.get("isSuccess") is True and res.get("value") is not None:
-        value=res.get("value")
+    res=node_client.get_valueStore(key="DEVICEINFO")
+    st.write(res)
+    res_json=json.loads(res)
+    st.write(res_json)
+    if res_json.get("isSuccess") is True and res_json.get("value") is not None:
+        value=res_json.get("value")
         st.text(f"Device ID: {value.get('device_id')}")
         st.text(f"MAC ID: {value.get('mac_id')}")
         st.text(f"IMEI No.: {value.get('imei_id')}")

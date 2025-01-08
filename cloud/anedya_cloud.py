@@ -30,7 +30,6 @@ class NewNode:
     def __init__(self, new_client: NewClient, nodeId: str) -> None:
         self.nodeId = nodeId
         self.API_KEY = new_client.API_KEY
-        self.http_session = new_client.http_session
 
     def get_deviceStatus(self) -> dict:
         return anedya_getDeviceStatus(self.API_KEY, self.nodeId)
@@ -179,7 +178,7 @@ def get_data(
         return value
 
 
-@st.cache_data(ttl=1000, show_spinner=False)
+@st.cache_data(ttl=1, show_spinner=False)
 def anedya_getValueStore(
     apiKey,
     nodeId,
