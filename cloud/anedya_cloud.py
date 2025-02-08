@@ -45,6 +45,9 @@ class NewNode:
         )
     def get_valueStore(self, scope: str="node", id:str="", key:str="") -> dict:
         return anedya_getValueStore(self.API_KEY, self.nodeId, scope, id, key)
+    
+    def get_aggData(self, variable_identifier: str, from_time: int, to_time: int, agg_interval_mins:int=10) -> pd.DataFrame:
+        return anedya_getAggData(variable_identifier, self.nodeId, from_time, to_time, self.API_KEY, agg_interval_mins)
 
 
 @st.cache_data(ttl=40, show_spinner=False)
@@ -159,9 +162,9 @@ def get_data(
 
             if df.duplicated(subset=["timestamp"]).any():
                 st.warning("Found duplicate datapoints.")
-
-            # Remove similar data points
-            df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
+                # Remove similar data points
+                df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
+                
             df["Datetime"] = pd.to_datetime(df["timestamp"], unit="s")
             local_tz = pytz.timezone("Asia/Kolkata")  # Change to your local time zone
             df["Datetime"] = (
@@ -183,6 +186,81 @@ def get_data(
         value = pd.DataFrame()
         return value
 
+@st.cache_data(ttl=30, show_spinner=False)
+def anedya_getAggData(
+    variable_identifier: str,
+    nodeId: str,
+    from_time: int,
+    to_time: int,
+    apiKey: str,
+    agg_interval_mins: int,
+) -> pd.DataFrame:
+    url = "https://api.anedya.io/v1/aggregates/variable/byTime"
+    apiKey_in_formate = "Bearer " + apiKey
+
+    payload = json.dumps(
+        {
+            "variable": variable_identifier,
+            "from": from_time,
+            "to": to_time,
+            "config": {
+                "aggregation": {"compute": "avg", "forEachNode": True},
+                "interval": {
+                    "measure": "minute",
+                    "interval": agg_interval_mins,
+                },
+                "responseOptions": {"timezone": "UTC"},
+                "filter": {"nodes": [nodeId], "type": "include"},
+            },
+        }
+    )
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": apiKey_in_formate,
+    }
+
+    response = st.session_state.http_client.request("POST", url, headers=headers, data=payload)
+    response_message = response.text
+
+    if response.status_code == 200:
+        data_list = []
+
+        # Parse JSON string
+        response_data = json.loads(response_message).get("data")
+        for timeStamp, aggregate in response_data.items():
+            for entry in aggregate:
+                data_list.append(entry)
+
+        if data_list:
+            # st.session_state.CurrentTemperature = round(data_list[0]["aggregate"], 2)
+            df = pd.DataFrame(data_list)
+
+            if df.duplicated(subset=["timestamp"]).any():
+                st.warning("Found duplicate datapoints.")
+                # Remove similar data points
+                df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
+                
+            df["Datetime"] = pd.to_datetime(df["timestamp"], unit="s")
+            local_tz = pytz.timezone("Asia/Kolkata")  # Change to your local time zone
+            df["Datetime"] = (
+                df["Datetime"].dt.tz_localize("UTC").dt.tz_convert(local_tz)
+            )
+            df.set_index("Datetime", inplace=True)
+
+            # Droped the original 'timestamp' column as it's no longer needed
+            df.drop(columns=["timestamp"], inplace=True)
+            # print(df.head())
+            # Reset the index to prepare for Altair chart
+            chart_data = df.reset_index()
+        else:
+            chart_data = pd.DataFrame()
+        return chart_data
+    else:
+        # st.write(response_message)
+        print(response_message[0])
+        value = pd.DataFrame()
+        return value
 
 @st.cache_data(ttl=1, show_spinner=False)
 def anedya_getValueStore(

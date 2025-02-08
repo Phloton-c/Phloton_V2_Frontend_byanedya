@@ -5,7 +5,7 @@ import altair as alt
 
 # ====================== Altair charts ======================
         
-def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = None, x_axis_title: str = "Datetime",topRange:int=50,bottomRange:int=0):
+def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = None, x_axis_title: str = "Datetime",topRange:int=50,bottomRange:int=0,agg:int=None, aggregate_or_value:str="value"):
     if chart_title:
         st.subheader(chart_title)
     if chart_data is None:
@@ -14,6 +14,11 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
     elif chart_data.empty:
         st.error("No Data Available")
         return
+
+    if chart_data is not None and not chart_data.empty:
+        st.markdown(
+            f"**Agg**: {agg} min | **Min:** {chart_data[aggregate_or_value].min():.2f} **Max:** {chart_data[aggregate_or_value].max():.2f} **Average:** {chart_data[aggregate_or_value].mean():.2f} "
+        )
 
         
     temperature_chart_an = (
@@ -46,7 +51,7 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
                     ),
                 ),  # T indicates temporal (time-based) data
                 y=alt.Y(
-                    "value:Q",
+                    f"{aggregate_or_value}:Q",
                     # scale=alt.Scale(domain=[0, 100]),
                     scale=alt.Scale(zero=False, domain=[bottomRange, topRange]),
                     axis=alt.Axis(
@@ -59,7 +64,7 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
                         format="%Y-%m-%d %H:%M:%S",
                         title="Time",
                     ),
-                    alt.Tooltip("value:Q", format="0.2f", title="Value"),
+                    alt.Tooltip(f"{aggregate_or_value}:Q", format="0.2f", title=aggregate_or_value),
                 ],
             )
             .properties(height=350)
