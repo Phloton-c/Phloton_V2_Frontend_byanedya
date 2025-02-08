@@ -244,7 +244,9 @@ def graph_section(node_client=None):
             auto_update_time_range(False)
 
         with datetime_cols[2]:
-            reset_btn = st.button(label="Live", on_click=reset_time_range,use_container_width=True)
+            reset_btn = st.button(
+                label="Live", on_click=reset_time_range, use_container_width=True
+            )
             if reset_btn:
                 auto_update_time_range(True)
                 # st.rerun()
@@ -253,6 +255,16 @@ def graph_section(node_client=None):
             update_time_range()
 
         # ======================= charts ===========================
+        interval=st.session_state.to_input_time - st.session_state.from_input_time
+        agg_interval=0
+        if interval > 2592000:
+            agg_interval = 60
+        elif interval > 864000:
+            agg_interval = 30
+        elif interval > 100080:
+            agg_interval = 10
+        elif interval <= 100080:
+            agg_interval = 0
         options: list = None
         if st.session_state.view_role == "user":
             options = [
@@ -294,11 +306,10 @@ def graph_section(node_client=None):
                 label_visibility="hidden",
                 on_change=change_callback,
             )
-            if show_charts!=[] or is_options_changed:
-                if show_charts!=st.session_state.show_charts:
+            if show_charts != [] or is_options_changed:
+                if show_charts != st.session_state.show_charts:
                     st.session_state.show_charts = show_charts
-                is_options_changed=False
-
+                is_options_changed = False
 
         for i in range(0, len(st.session_state.show_charts), 3):
             r2_graph_cols = st.columns([1, 1, 1], gap="small")
@@ -307,23 +318,39 @@ def graph_section(node_client=None):
                     VARIABLE_KEY = get_variable_key_by_name(VARIABLES, chart)
                     if VARIABLE_KEY is not None:
                         VARIABLE = VARIABLES.get(VARIABLE_KEY)
-                        data = node_client.get_data(
-                            VARIABLE.get("identifier"), st.session_state.from_input_time, st.session_state.to_input_time
-                        )
+                        data=pd.DataFrame()
+                        aggregate_or_value="value"
+                        if interval <= 100080:
+                            data=node_client.get_data(variable_identifier=VARIABLE.get("identifier"),from_time=st.session_state.from_input_time,to_time=st.session_state.to_input_time)
+                            aggregate_or_value="value"
+                        else:
+                            data = node_client.get_aggData(
+                                variable_identifier=VARIABLE.get("identifier"),
+                                from_time=st.session_state.from_input_time,
+                                to_time=st.session_state.to_input_time,
+                                agg_interval_mins=agg_interval,
+                            )
+                            aggregate_or_value="aggregate"
+                        minData=data[aggregate_or_value].min()
+                        maxData=data[aggregate_or_value].max()
                         draw_chart(
                             chart_title=chart,
                             chart_data=data,
                             y_axis_title=VARIABLE.get("unit"),
-                            bottomRange=VARIABLE.get("bottom_range"),
-                            topRange=VARIABLE.get("top_range"),
+                            bottomRange=minData,
+                            topRange=maxData,
+                            agg=agg_interval,
+                            aggregate_or_value=aggregate_or_value
                         )
                     else:
                         st.subheader(chart)
                         st.error("Variable not found")
 
+
 def change_callback():
     global is_options_changed
-    is_options_changed=True
+    is_options_changed = True
+
 
 def map_section(node_client=None):
     container = st.container(border=True)
