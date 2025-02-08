@@ -333,7 +333,7 @@ def graph_section(node_client=None):
                             aggregate_or_value="aggregate"
                         minData=None
                         maxData=None
-                        if data is None:
+                        if data is not None:
                             minData=data[aggregate_or_value].min()
                             maxData=data[aggregate_or_value].max()
                         draw_chart(
