@@ -331,8 +331,11 @@ def graph_section(node_client=None):
                                 agg_interval_mins=agg_interval,
                             )
                             aggregate_or_value="aggregate"
-                        minData=data[aggregate_or_value].min()
-                        maxData=data[aggregate_or_value].max()
+                        minData=None
+                        maxData=None
+                        if data is None:
+                            minData=data[aggregate_or_value].min()
+                            maxData=data[aggregate_or_value].max()
                         draw_chart(
                             chart_title=chart,
                             chart_data=data,
