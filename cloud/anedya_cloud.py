@@ -25,7 +25,7 @@ class NewClient:
         else:
             self.API_KEY = API_KEY
 
-
+ 
 class NewNode:
     def __init__(self, new_client: NewClient, nodeId: str) -> None:
         self.nodeId = nodeId
