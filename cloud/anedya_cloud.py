@@ -131,7 +131,7 @@ def get_data(
             "from": from_time,
             "to": to_time,
             "limit": 10000,
-            "order": "asc",
+            "order": "desc",
         }
     )
     headers = {
@@ -149,13 +149,16 @@ def get_data(
 
         # Parse JSON string
         response_data = json.loads(response_message).get("data")
-        for timeStamp, value in reversed(response_data.items()):
-            for entry in reversed(value):
+        for timeStamp, value in response_data.items():
+            for entry in value:
                 data_list.append(entry)
 
         if data_list:
             # st.session_state.CurrentTemperature = round(data_list[0]["aggregate"], 2)
             df = pd.DataFrame(data_list)
+
+            # Remove similar data points
+            df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
             df["Datetime"] = pd.to_datetime(df["timestamp"], unit="s")
             local_tz = pytz.timezone("Asia/Kolkata")  # Change to your local time zone
             df["Datetime"] = (
