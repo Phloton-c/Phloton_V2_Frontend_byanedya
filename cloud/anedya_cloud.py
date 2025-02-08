@@ -159,9 +159,9 @@ def get_data(
 
             if df.duplicated(subset=["timestamp"]).any():
                 st.warning("Found duplicate datapoints.")
-
-            # Remove similar data points
-            df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
+                # Remove similar data points
+                df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
+                
             df["Datetime"] = pd.to_datetime(df["timestamp"], unit="s")
             local_tz = pytz.timezone("Asia/Kolkata")  # Change to your local time zone
             df["Datetime"] = (

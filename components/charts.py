@@ -15,6 +15,11 @@ def draw_chart(chart_title: str = None, chart_data=None, y_axis_title: str = Non
         st.error("No Data Available")
         return
 
+    if chart_data is not None and not chart_data.empty:
+        st.markdown(
+            f"**Min:** {chart_data['value'].min():.2f} **Max:** {chart_data['value'].max():.2f} **Average:** {chart_data['value'].mean():.2f}"
+        )
+
         
     temperature_chart_an = (
             alt.Chart(data=chart_data)
