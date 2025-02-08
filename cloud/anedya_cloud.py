@@ -157,6 +157,9 @@ def get_data(
             # st.session_state.CurrentTemperature = round(data_list[0]["aggregate"], 2)
             df = pd.DataFrame(data_list)
 
+            if df.duplicated(subset=["timestamp"]).any():
+                st.warning("Found duplicate datapoints.")
+
             # Remove similar data points
             df.drop_duplicates(subset=["timestamp"], keep="first", inplace=True)
             df["Datetime"] = pd.to_datetime(df["timestamp"], unit="s")
