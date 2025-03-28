@@ -1,5 +1,4 @@
 import streamlit as st
-import pytz
 from datetime import  datetime
 from components.ui.time_range_controller import (
     get_default_time_range,
