@@ -296,13 +296,14 @@ def graph_section(node_client=None):
         VARIABLES = st.session_state.variablesIdentifier
         # st.write(VARIABLES)
 
-        multislect_cols = st.columns([0.7, 1], gap="small")
+        multislect_cols = st.columns([3.5,1,0.5], gap="medium",vertical_alignment="bottom")
         with multislect_cols[0]:
 
             show_charts = st.multiselect(
                 "Show Charts",
                 placeholder="Show Charts",
                 options=options,
+                default=options[0],
                 label_visibility="hidden",
                 on_change=change_callback,
             )
@@ -310,6 +311,12 @@ def graph_section(node_client=None):
                 if show_charts != st.session_state.show_charts:
                     st.session_state.show_charts = show_charts
                 is_options_changed = False
+        with multislect_cols[1]:
+            pass
+        with multislect_cols[2]:
+            submit=st.button(label="Submit",use_container_width=True)
+            if submit:
+                st.rerun()
 
         for i in range(0, len(st.session_state.show_charts), 3):
             r2_graph_cols = st.columns([1, 1, 1], gap="small")

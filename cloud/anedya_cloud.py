@@ -55,7 +55,7 @@ def anedya_getDeviceStatus(apiKey, nodeId) -> dict:
     url = "https://api.anedya.io/v1/health/status"
     apiKey_in_formate = "Bearer " + apiKey
 
-    payload = json.dumps({"nodes": [nodeId], "lastContactThreshold": 120})
+    payload = json.dumps({"nodes": [nodeId], "lastContactThreshold": 900})
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
