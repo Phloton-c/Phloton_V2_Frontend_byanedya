@@ -22,7 +22,17 @@ def drawAdminDashboard():
             st.Page(f"{current_dir}/units/unit_7.py", title="Unit 7",icon="🛜"),
             st.Page(f"{current_dir}/units/unit_8.py", title="Unit 8",icon="🛜"),
             st.Page(f"{current_dir}/units/unit_9.py", title="Unit 9",icon="🛜"),
-            st.Page(f"{current_dir}/units/unit_10.py", title="Unit 10",icon="🛜")
+            st.Page(f"{current_dir}/units/unit_10.py", title="Unit 10",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_11.py", title="Unit 11", icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_12.py", title="Unit 12",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_13.py", title="Unit 13",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_14.py", title="Unit 14",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_15.py", title="Unit 15",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_16.py", title="Unit 16",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_17.py", title="Unit 17",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_18.py", title="Unit 18",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_19.py", title="Unit 19",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_20.py", title="Unit 20",icon="🛜"),
         ]
     }
     pg = st.navigation(pages)
