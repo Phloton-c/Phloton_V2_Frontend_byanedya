@@ -6,7 +6,7 @@ from components.ui.unit_ui_components import graph_section
 from components.ui.unit_ui_components import map_section
 from cloud.anedya_cloud import Anedya
 
-UNIT_NUMBER=5
+UNIT_NUMBER=18
 def draw_unit_1_dashboard():
     NUMBER_OF_NODES= len(st.session_state.nodesId)
     if NUMBER_OF_NODES< UNIT_NUMBER:
