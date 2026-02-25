@@ -7,7 +7,7 @@ def drawUsersDashboard():
     current_dir=os.getcwd()
     user_permissions = st.session_state.user_permissions
     Units_pages = []
-    for i in range(1, 26):
+    for i in range(1, 25):
         unit = f"Unit-{i}"
         if unit in user_permissions:
             page = st.Page(f"{current_dir}/units/unit_{i}.py", title=f"Unit {i}", icon="🛜", default=(i == 1))
@@ -23,4 +23,5 @@ def drawUsersDashboard():
     pg.run()
     
     
+
 
