@@ -33,6 +33,12 @@ def drawAdminDashboard():
             st.Page(f"{current_dir}/units/unit_18.py", title="Unit 18",icon="🛜"),
             st.Page(f"{current_dir}/units/unit_19.py", title="Unit 19",icon="🛜"),
             st.Page(f"{current_dir}/units/unit_20.py", title="Unit 20",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_21.py", title="Unit 21",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_22.py", title="Unit 22",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_23.py", title="Unit 23",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_24.py", title="Unit 24",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_25.py", title="Unit 25",icon="🛜"),
+            st.Page(f"{current_dir}/units/unit_26.py", title="Unit 26",icon="🛜")
         ]
     }
     pg = st.navigation(pages)
@@ -42,3 +48,4 @@ def drawAdminDashboard():
     pg.run()
     
     
+
