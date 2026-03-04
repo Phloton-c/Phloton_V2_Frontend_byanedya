@@ -108,6 +108,18 @@ def edits_user_ui():
                     "Unit-8",
                     "Unit-9",
                     "Unit-10",
+                    "Unit-11",
+                    "Unit-12",
+                    "Unit-13",
+                    "Unit-14",
+                    "Unit-15",
+                    "Unit-16",
+                    "Unit-17",
+                    "Unit-18",
+                    "Unit-19",
+                    "Unit-20",
+                    "Unit-21",
+                    "Unit-22",
                 ]
                 permissions = st.pills("Permissions", options, selection_mode="multi")
                 edit_req_payload["permissions"] = permissions
@@ -146,3 +158,4 @@ def list_users_ui():
 
 
 manage_users_ui()
+
